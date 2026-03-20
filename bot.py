@@ -30,7 +30,7 @@ async def send_imagine(prompt):
         'channel_id': str(CHANNEL_ID),
         'session_id': 'automation',
         'data': {
-            'version': '1166847114203123795',
+            'version': '1237876415471554623',
             'id': '938956540159881230',
             'name': 'imagine',
             'type': 1,
