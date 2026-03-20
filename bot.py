@@ -3,11 +3,13 @@ import asyncio
 import os
 from flask import Flask, request, jsonify
 import threading
+import discord
 
 USER_TOKEN = os.environ.get('USER_TOKEN')
 CHANNEL_ID = os.environ.get('CHANNEL_ID')
 N8N_WEBHOOK_URL = os.environ.get('N8N_WEBHOOK_URL')
 DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
+GUILD_ID = '1484333340315095062'
 
 app = Flask(__name__)
 
@@ -19,6 +21,7 @@ async def send_imagine(prompt):
     payload = {
         'type': 2,
         'application_id': '936929561302675456',
+        'guild_id': GUILD_ID,
         'channel_id': str(CHANNEL_ID),
         'session_id': 'automation',
         'data': {
@@ -36,8 +39,10 @@ async def send_imagine(prompt):
             json=payload
         ) as resp:
             print(f'MJ响应状态: {resp.status}')
+            text = await resp.text()
+            print(f'MJ响应内容: {text}')
 
-async def listen_for_image(prompt_keyword):
+async def listen_for_image():
     headers = {'Authorization': USER_TOKEN}
     for _ in range(20):
         await asyncio.sleep(10)
@@ -52,12 +57,17 @@ async def listen_for_image(prompt_keyword):
                         attachments = msg.get('attachments', [])
                         if attachments:
                             image_url = attachments[0]['url']
+                            print(f'找到图片: {image_url}')
                             async with aiohttp.ClientSession() as s:
                                 await s.post(N8N_WEBHOOK_URL, json={
                                     'image_url': image_url,
                                     'message_id': msg['id']
                                 })
                             return
+
+async def run_tasks(prompt):
+    await send_imagine(prompt)
+    await listen_for_image()
 
 @app.route('/imagine', methods=['POST'])
 def imagine():
@@ -67,16 +77,11 @@ def imagine():
     threading.Thread(target=lambda: loop.run_until_complete(run_tasks(prompt))).start()
     return jsonify({'status': 'sent'})
 
-async def run_tasks(prompt):
-    await send_imagine(prompt)
-    await listen_for_image(prompt)
-
 def run_flask():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
 
 threading.Thread(target=run_flask).start()
 
-import discord
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
