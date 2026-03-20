@@ -16,13 +16,12 @@ app = Flask(__name__)
 async def send_imagine(prompt):
     headers = {
         'Authorization': USER_TOKEN,
-        'Content-Type': 'application/json'
-    }
-    payload = {
-        'type': 2,
-        'application_id': '936929561302675456',
-        'guild_id': GUILD_ID,
-        'channel_id': str(CHANNEL_ID),
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'X-Super-Properties': 'eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzEyMC4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTIwLjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6IiIsInJlZmVycmluZ19kb21haW5fY3VycmVudCI6IiIsInJlbGVhc2VfY2hhbm5lbCI6InN0YWJsZSIsImNsaWVudF9idWlsZF9udW1iZXIiOjI2NTQ5NiwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=',
+        'X-Discord-Locale': 'en-US',
+        'Origin': 'https://discord.com',
+        'Referer': 'https://discord.com/channels/' + GUILD_ID + '/' + str(CHANNEL_ID),
         'session_id': 'automation',
         'data': {
             'version': '1166847114203123795',
