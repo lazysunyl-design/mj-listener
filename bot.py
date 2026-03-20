@@ -57,7 +57,12 @@ async def listen_for_image():
                 headers=headers
             ) as resp:
                 messages = await resp.json()
+                if not isinstance(messages, list):
+                    print(f'消息获取失败: {messages}')
+                    continue
                 for msg in messages:
+                    if not isinstance(msg, dict):
+                        continue
                     if msg.get('author', {}).get('id') == '936929561302675456':
                         attachments = msg.get('attachments', [])
                         if attachments:
