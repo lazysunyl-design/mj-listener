@@ -26,7 +26,7 @@ def imagine():
 
 async def send_imagine(prompt):
     channel = client.get_channel(CHANNEL_ID)
-    await channel.send(f'/imagine prompt: {prompt}')
+    await channel.send(f'<@936929561302675456> imagine prompt: {prompt}')
 
 @client.event
 async def on_ready():
@@ -34,7 +34,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.author.bot and message.attachments:
+    if message.author.id == 936929561302675456 and message.attachments:
         for attachment in message.attachments:
             if any(attachment.filename.endswith(ext) for ext in ['.png', '.jpg', '.webp']):
                 async with aiohttp.ClientSession() as session:
