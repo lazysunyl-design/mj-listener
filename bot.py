@@ -19,8 +19,7 @@ async def send_imagine(prompt):
     payload = {
         'type': 2,
         'application_id': '936929561302675456',
-        'guild_id': None,
-        'channel_id': CHANNEL_ID,
+        'channel_id': str(CHANNEL_ID),
         'session_id': 'automation',
         'data': {
             'version': '1166847114203123795',
