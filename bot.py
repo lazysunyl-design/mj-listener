@@ -22,6 +22,12 @@ async def send_imagine(prompt):
         'X-Discord-Locale': 'en-US',
         'Origin': 'https://discord.com',
         'Referer': 'https://discord.com/channels/' + GUILD_ID + '/' + str(CHANNEL_ID),
+    }
+    payload = {
+        'type': 2,
+        'application_id': '936929561302675456',
+        'guild_id': GUILD_ID,
+        'channel_id': str(CHANNEL_ID),
         'session_id': 'automation',
         'data': {
             'version': '1166847114203123795',
