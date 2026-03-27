@@ -50,11 +50,10 @@ def callback():
 
     image_url = None
     if data:
-        image_url = (
-            data.get('url') or
-            data.get('image_url') or
-            data.get('output') or
-            (data.get('images') or [None])[0]
+        try:
+            image_url = data['data']['output']['image_url']
+        except (KeyError, TypeError):
+            image_url = None
         )
 
     if image_url and N8N_WEBHOOK_URL:
