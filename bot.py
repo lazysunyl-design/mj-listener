@@ -54,7 +54,6 @@ def callback():
             image_url = data['data']['output']['image_url']
         except (KeyError, TypeError):
             image_url = None
-        )
 
     if image_url and N8N_WEBHOOK_URL:
         async def send_to_n8n():
