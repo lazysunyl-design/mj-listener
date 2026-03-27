@@ -55,7 +55,19 @@ def callback():
         except (KeyError, TypeError):
             image_url = None
 
-    if image_url and N8N_WEBHOOK_URL:
+    if image_url:
+    async def download_image():
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image_url) as resp:
+                if resp.status == 200:
+                    import time
+                    filename = f'/data/mj-images/{int(time.time()*1000)}.png'
+                    content = await resp.read()
+                    with open(filename, 'wb') as f:
+                        f.write(content)
+                    print(f'图片已保存: {filename}')
+    loop2 = asyncio.new_event_loop()
+    threading.Thread(target=lambda: loop2.run_until_complete(download_image())).start()
         async def send_to_n8n():
             async with aiohttp.ClientSession() as session:
                 await session.post(N8N_WEBHOOK_URL, json={
