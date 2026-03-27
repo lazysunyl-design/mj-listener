@@ -1,6 +1,7 @@
 import os
 import asyncio
 import threading
+import time
 import aiohttp
 from flask import Flask, request, jsonify
 
@@ -31,16 +32,12 @@ def imagine():
     prompt = data.get('prompt')
     if not prompt:
         return jsonify({'status': 'error', 'message': 'prompt is required'}), 400
-
-    # callback 地址指向本服务自身的 /callback 端点
     port = int(os.environ.get('PORT', 5000))
     callback_url = os.environ.get('SELF_URL', f'http://localhost:{port}') + '/callback'
-
     loop = asyncio.new_event_loop()
     threading.Thread(
         target=lambda: loop.run_until_complete(generate_image(prompt, callback_url))
     ).start()
-
     return jsonify({'status': 'sent'})
 
 @app.route('/callback', methods=['POST'])
@@ -49,33 +46,35 @@ def callback():
     print(f'LegNext 回调数据: {data}')
 
     image_url = None
-    if data:
-        try:
-            image_url = data['data']['output']['image_url']
-        except (KeyError, TypeError):
-            image_url = None
+    try:
+        image_url = data['data']['output']['image_url']
+    except (KeyError, TypeError):
+        image_url = None
 
     if image_url:
-    async def download_image():
-        async with aiohttp.ClientSession() as session:
-            async with session.get(image_url) as resp:
-                if resp.status == 200:
-                    import time
-                    filename = f'/data/mj-images/{int(time.time()*1000)}.png'
-                    content = await resp.read()
-                    with open(filename, 'wb') as f:
-                        f.write(content)
-                    print(f'图片已保存: {filename}')
-    loop2 = asyncio.new_event_loop()
-    threading.Thread(target=lambda: loop2.run_until_complete(download_image())).start()
+        async def download_image():
+            async with aiohttp.ClientSession() as session:
+                async with session.get(image_url) as resp:
+                    if resp.status == 200:
+                        filename = f'/data/mj-images/{int(time.time()*1000)}.png'
+                        content = await resp.read()
+                        with open(filename, 'wb') as f:
+                            f.write(content)
+                        print(f'图片已保存: {filename}')
+
         async def send_to_n8n():
             async with aiohttp.ClientSession() as session:
                 await session.post(N8N_WEBHOOK_URL, json={
                     'image_url': image_url,
-                    'job_id': data.get('id', '')
+                    'job_id': data['data'].get('job_id', '')
                 })
+
         loop = asyncio.new_event_loop()
-        threading.Thread(target=lambda: loop.run_until_complete(send_to_n8n())).start()
+        threading.Thread(target=lambda: loop.run_until_complete(download_image())).start()
+
+        if N8N_WEBHOOK_URL:
+            loop2 = asyncio.new_event_loop()
+            threading.Thread(target=lambda: loop2.run_until_complete(send_to_n8n())).start()
 
     return jsonify({'status': 'ok'})
 
